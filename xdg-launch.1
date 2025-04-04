@@ -1,0 +1,120 @@
+.TH XDG-LAUNCH 1 "April 2025" "1.0" "XDG Launcher"
+
+.SH NAME
+xdg-launch \- Enforces XDG Base Directory compliance for applications.
+
+.SH SYNOPSIS
+.B xdg-launch
+[\fB\-cd\fR \fIdirectory\fR] 
+.IR application
+[\fB\-\- \fIoptions\fR...]
+
+.SH DESCRIPTION
+.B xdg-launch
+is a shell script designed to enforce the XDG Base Directory Specification for
+applications that do not respect the user's XDG settings. By temporarily
+redefining the \fIHOME\fR environment variable and linking necessary files,
+it fools applications into storing their configuration, cache, and data files
+in the appropriate XDG-defined locations.
+
+.SH OPTIONS
+
+.TP
+.B \-d, \--dir, \--cd \fIdirectory\fR
+Specify a working directory for the application.
+The script will change to this directory before launching the application.
+
+.TP
+.BR \-\-help ", " \-h
+Display usage information and exit.
+
+.TP
+.I application
+The application to be launched. This is required.
+
+.TP
+.I options
+Any additional options or arguments passed to the application must follow the 
+.B --
+separator.
+
+.SH HOW IT WORKS
+
+.TP
+Environment Setup:
+The script checks for user-defined \fBXDG_CONFIG_HOME\fR, \fBXDG_CACHE_HOMEfR,
+and \fBXDG_DATA_HOME\fR. If they are not defined, default values are used.
+Missing directories are created as needed.
+
+.TP
+Temporary Links:
+Temporary links are created within \fBXDG_DATA_HOME\fR for the user's
+cache, config, and Xauthority.
+
+.TP
+Application Launch:
+The script changes the working directory (if specified), redefines the
+\fBHOME\fR environment variable to point to \fBXDG_DATA_HOME\fR, and
+launches the specified application with its arguments.
+
+.TP
+Cleanup:
+The temporary links are removed after the application exits.
+
+.SH ENVIRONMENT VARIABLES
+
+.TP
+.B XDG_CONFIG_HOME
+Defines where user-specific configuration files should be stored. Defaults to 
+.I ${HOME}/.config.
+
+.TP
+.B XDG_CACHE_HOME
+Defines where user-specific cache files should be stored. Defaults to 
+.I ${HOME}/.cache.
+
+.TP
+.B XDG_DATA_HOME
+Defines where user-specific data files should be stored. Defaults to 
+.I ${HOME}/.local/share.
+
+.TP
+.B XAUTHORITY
+Specifies the path to the \fI.Xauthority\fR file used by X11 for authentication.
+
+.SH NOTES
+.PP
+If you have an existing \fBXAUTHORITY\fR setting, the script will \fBnot\fR
+create a temporary link for \fI.Xauthority\fR. It is expected that your setting
+works without modification.
+Please let the author know if this is, in fact, true or not.
+
+.SH EXIT STATUS
+.PP
+The launcher returns the exit code of the target application.
+
+.SH FILES
+.PP
+The following directories and files are used:
+.TP
+.I $HOME/.config:
+Default location for configuration files.
+.TP
+.I $HOME/.cache:
+Default location for cache files.
+.TP
+.I $HOME/.local/share:
+Default location for data files.
+.TP
+.I $HOME/.Xauthority:
+Used for X11 authentication.
+
+.SH AUTHOR
+
+Hildigerr Vergaray  
+
+.SH SEE ALSO
+
+.XDG Base Directory Specification:
+https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html  
+
