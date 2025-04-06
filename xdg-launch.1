@@ -5,7 +5,8 @@ xdg-launch \- Enforces XDG Base Directory compliance for applications.
 
 .SH SYNOPSIS
 .B xdg-launch
-[\fB\-cd\fR \fIdirectory\fR] 
+[\fB\-cd\fR \fIdirectory\fR]
+[\fB\-\-fuzz\fR]
 .IR application
 [\fB\-\- \fIoptions\fR...]
 
@@ -23,6 +24,12 @@ in the appropriate XDG-defined locations.
 .B \-d, \--dir, \--cd \fIdirectory\fR
 Specify a working directory for the application.
 The script will change to this directory before launching the application.
+
+.TP
+.B \-f, \--fuzz
+Fuzz the \fI/etc/passwd\fR file for applications that ignore environment variables.
+This enables namespace isolation and maps the fake root user's home directory to \fIXDG_DATA_HOME\fR.
+This ensures compatibility for applications that target on \fI/etc/passwd\fR for determining the home directory.
 
 .TP
 .BR \-\-help ", " \-h
@@ -52,14 +59,21 @@ Temporary links are created within \fBXDG_DATA_HOME\fR for the user's
 cache, config, and Xauthority.
 
 .TP
+/etc/passwd Fuzzing (if enabled):
+A copy of the \fI/etc/passwd\fR file is created as \fI/tmp/passwd.fuzz-$USER\fR.
+Within this file, the root user's home directory is set to the real user's \fIXDG_DATA_HOME\fR.
+
+.TP
 Application Launch:
 The script changes the working directory (if specified), redefines the
 \fBHOME\fR environment variable to point to \fBXDG_DATA_HOME\fR, and
 launches the specified application with its arguments.
+If enabled, this occurs within a new private namespace for fuzzing the \fI/etc/passwd\fR file.
 
 .TP
 Cleanup:
 The temporary links are removed after the application exits.
+Fuzzed passwd files are not removed from the \fI/tmp\fR directory, but will be overwritten each time.
 
 .SH ENVIRONMENT VARIABLES
 

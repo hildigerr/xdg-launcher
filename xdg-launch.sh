@@ -11,7 +11,7 @@
 #
 # Copyright (C) 2025 Hildigerr Vergaray [MIT License]
 
-usage() { echo "Usage: $0 [-cd <directory>] application> [-- options]"; exit; }
+usage() { echo "Usage: $0 [-cd <directory>] [--fuzz] application> [-- options]"; exit; }
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -24,6 +24,7 @@ while [[ "$#" -gt 0 ]]; do
         exit 1
       fi
       shift;;
+    --fuzz|-f) FUZZ="$1";;
     --help|-h) useage;;
     --) shift; break;;
     *) if [ -z "$APPLICATION" ]; then APPLICATION="$1"; else usage; fi;;
@@ -88,7 +89,15 @@ if [ ! -e "${XDG_DATA_HOME}/.config" ]; then
   ln --symbolic -T "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}/.config"
 fi
 
-env HOME="${XDG_DATA_HOME}" "$APPLICATION" "$@"
+if [ -z "${FUZZ}" ]; then
+  env HOME="${XDG_DATA_HOME}" "$APPLICATION" "$@"
+else
+  sed "s|:/root:|:${XDG_DATA_HOME}:|" /etc/passwd > "/tmp/passwd.fuz-${USER}"
+  unshare --user --map-root-user --mount --propagation private sh -c "
+    mount --bind /tmp/passwd.fuz-${USER} /etc/passwd
+    exec env HOME=\"${XDG_DATA_HOME}\" \"${APPLICATION}\" \"\$@\"
+  " _ "$@"
+fi
 RVAL=$?
 
 # Unlink the Xauthority file (Only if it has more than one link)
