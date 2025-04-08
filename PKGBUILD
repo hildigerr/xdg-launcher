@@ -1,7 +1,7 @@
 # Maintainer: Hildigerr Vergaray <Maintainer at YmirSystems dot com>
 
 pkgname=xdg-launcher
-pkgver=1.1
+pkgver=1.2
 pkgrel=1
 pkgdesc="Launcher to enfoce XDG Base Directory compliance for any application."
 arch=('any')

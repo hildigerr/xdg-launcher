@@ -13,7 +13,7 @@
 
 usage() { echo "Usage: $0 [-cd <directory>] [--fuzz] application> [-- options]"; exit; }
 
-while [[ "$#" -gt 0 ]]; do
+while [ "$#" -gt 0 ]; do
   case $1 in
     --dir|--cd|-d)
       WORKING_DIRECTORY="$2"
@@ -103,7 +103,7 @@ RVAL=$?
 # Unlink the Xauthority file (Only if it has more than one link)
 if [ -f "${XDG_DATA_HOME}/.Xauthority" ]; then
   links=$(stat -c "%h" "${XDG_DATA_HOME}/.Xauthority")
-  if [[ "$links" -gt 1 ]]; then
+  if [ "$links" -gt 1 ]; then
   echo "Unlinking temporary Xauthority file"
     unlink "${XDG_DATA_HOME}/.Xauthority"
   fi
