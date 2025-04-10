@@ -8,16 +8,17 @@ This script is designed to enforce compliance with the [XDG Base Directory Speci
 ## Usage
 
 ```
-xdg-launch [-cd <directory>] [--fuzz] <application> [-- <options>]
+xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 ```
 
 ### Arguments
 
 -   `-d`, `--dir`, `--cd <directory>`: Specify a working directory for the application. The script will change to this directory before launching the application.
 -   `-f`, `--fuzz`: Fuzz the `/etc/passwd` file for applications that ignore environment variables.
+-   `--help`, `-h`: Display usage information.
+-   `--quiet`, `-q`: Quiet mode to supress launcher messages. The launched application's output is be affected.
 -   `<application>`: The application to be launched.
 -   `[<options>]`: Additional options or arguments passed to the application.
--   `--help`, `-h`: Display usage information.
 
 ## How It Works
 

@@ -5,8 +5,9 @@ xdg-launch \- Enforces XDG Base Directory compliance for applications.
 
 .SH SYNOPSIS
 .B xdg-launch
-[\fB\-cd\fR \fIdirectory\fR]
+[\fB\-\-cd\fR \fIdirectory\fR]
 [\fB\-\-fuzz\fR]
+[\fB\-\-quiet\fR]
 .IR application
 [\fB\-\- \fIoptions\fR...]
 
@@ -34,6 +35,9 @@ This ensures compatibility for applications that target on \fI/etc/passwd\fR for
 .TP
 .BR \-\-help ", " \-h
 Display usage information and exit.
+
+.TP \-\-quiet ", " \-q
+Quiet mode to supress the launcher messages. The launched application's output is not affected.
 
 .TP
 .I application

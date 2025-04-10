@@ -11,7 +11,10 @@
 #
 # Copyright (C) 2025 Hildigerr Vergaray [MIT License]
 
-usage() { echo "Usage: $0 [-cd <directory>] [--fuzz] application> [-- options]"; exit; }
+usage() { echo "Usage: $0 [-cd <directory>] [--fuzz] [--quiet] application> [-- options]"; exit; }
+
+# Save stdout and stderr for quiet mode
+exec 3>&1 4>&2
 
 while [ "$#" -gt 0 ]; do
   case $1 in
@@ -26,12 +29,15 @@ while [ "$#" -gt 0 ]; do
       shift;;
     --fuzz|-f) FUZZ="$1";;
     --help|-h) useage;;
+    --quiet|-q) QUIET="$1";;
     --) shift; break;;
     *) if [ -z "$APPLICATION" ]; then APPLICATION="$1"; else usage; fi;;
   esac
   shift
 done
 if [ -z "$APPLICATION" ]; then usage; fi;
+
+if [ -n "$QUIET" ]; then exec >/dev/null 2>&1; fi
 
 # Determine Where User Config Files Should Go
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
@@ -89,6 +95,8 @@ if [ ! -e "${XDG_DATA_HOME}/.config" ]; then
   ln --symbolic -T "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}/.config"
 fi
 
+if [ -n "$QUIET" ]; then exec >&3 2>&4; fi
+
 if [ -z "${FUZZ}" ]; then
   env HOME="${XDG_DATA_HOME}" "$APPLICATION" "$@"
 else
@@ -99,6 +107,8 @@ else
   " _ "$@"
 fi
 RVAL=$?
+
+if [ -n "$QUIET" ]; then exec >/dev/null 2>&1; fi
 
 # Unlink the Xauthority file (Only if it has more than one link)
 if [ -f "${XDG_DATA_HOME}/.Xauthority" ]; then
