@@ -61,7 +61,7 @@ while [ "$#" -gt 0 ]; do
         exit 1
       fi
       shift;;
-    --fuzz|-f) FUZZ="$1";;
+    --fuzz|-f) FUZZ="/tmp/${USER}/passwd.$$";;
     --help|-h) useage;;
     --quiet|-q) QUIET="$1";;
     --) shift; break;;
@@ -148,9 +148,10 @@ if [ -n "$QUIET" ]; then exec >&3 2>&4; fi
 if [ -z "${FUZZ}" ]; then
   env HOME="${XDG_DATA_HOME}" "$APPLICATION" "$@"
 else
-  sed "s|:/root:|:${XDG_DATA_HOME}:|" /etc/passwd > "/tmp/passwd.fuz-${USER}"
+  mkdir -p "$(dirname "${FUZZ}")"
+  sed "s|:/root:|:${XDG_DATA_HOME}:|" /etc/passwd > "${FUZZ}"
   unshare --user --map-root-user --mount --propagation private sh -c "
-    mount --bind /tmp/passwd.fuz-${USER} /etc/passwd
+    mount --bind \"${FUZZ}\" /etc/passwd
     exec env HOME=\"${XDG_DATA_HOME}\" \"${APPLICATION}\" \"\$@\"
   " _ "$@"
 fi

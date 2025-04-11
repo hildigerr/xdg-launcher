@@ -43,7 +43,7 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
 4.  **/etc/passwd Fuzzing** (if enabled):
 
-    -   A copy of the `/etc/passwd` file is created as `/tmp/passwd.fuzz-$USER`
+    -   A copy of the `/etc/passwd` file is created as `/tmp/$USER/passwd.pid`
     -   Within the file, the root user's home directory is set to the real user's `XDG_DATA_HOME`.
 
 5.  **Application Launch**:
@@ -57,7 +57,7 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
     -   The number of registerd applications is decremented within the `$XDG_STATE_HOME/xdg/launcher.data` file.
     -   Temporary links are removed unless registered as still in use by another application.
-    -   Fuzzed passwd files are not removed from the `/tmp` directory, but will be overwritten each time.
+    -   Fuzzed passwd files are not removed from the `/tmp/$USER/` directory.
 
 ## Notes
 If you have an `$XAUTHORITY` setting, the `.Xauthority` link will not be made. It is hoped that the setting works without it. I have not yet been successful in enabling this setting. So if you do have it set, please let me know if this works for you or not.

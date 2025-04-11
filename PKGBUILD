@@ -1,7 +1,7 @@
 # Maintainer: Hildigerr Vergaray <Maintainer at YmirSystems dot com>
 
 pkgname=xdg-launcher
-pkgver=1.5
+pkgver=1.6
 pkgrel=1
 pkgdesc="Launcher to enfoce XDG Base Directory compliance for any application."
 arch=('any')
@@ -12,8 +12,8 @@ source=(
   'xdg-launch.sh'
 )
 sha256sums=(
-  '5bb7fa74d38ef11e14ca5c8d48ca817102b6cb6ae63cf56116afb8d1147a910d'
-  'aff121a1315e6d45d5bbc8ce878201dcee0e49a5745c77fed7601aeaa29f2da3'
+  '28bf41481ea71b561da18b8d02e3465ad6b1f9af7369d79ae4e77c813f6f15b8'
+  'f1a4f92c47d04c167cf1fa14da2638c80bd38885468ed36a21e07fdfa0cb2167'
 )
 
 package() {

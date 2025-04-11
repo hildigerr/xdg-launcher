@@ -1,4 +1,4 @@
-.TH XDG-LAUNCH 1 "April 2025" "1.5" "XDG Launcher"
+.TH XDG-LAUNCH 1 "April 2025" "1.6" "XDG Launcher"
 
 .SH NAME
 xdg-launch \- Enforces XDG Base Directory compliance for applications.
@@ -73,7 +73,8 @@ cache, config, and Xauthority.
 
 .TP
 /etc/passwd Fuzzing (if enabled):
-A copy of the \fI/etc/passwd\fR file is created as \fI/tmp/passwd.fuzz-$USER\fR.
+A copy of the \fI/etc/passwd\fR file is created as \fI/tmp/$USER/passwd.pid\fR,
+where \fBpid\fR is the process id of the launcher.
 Within this file, the root user's home directory is set to the real user's \fBXDG_DATA_HOME\fR.
 
 .TP
@@ -87,7 +88,7 @@ If enabled, this occurs within a new private namespace for fuzzing the \fI/etc/p
 Cleanup After the Application Exits:
 The number of registerd applications is decremented within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
 Temporary links are removed unless they are still in use by another application.
-Fuzzed passwd files are not removed from the \fI/tmp\fR directory, but will be overwritten each time.
+Fuzzed passwd files are not removed from the \fI/tmp/$USER/\fR directory.
 
 .SH ENVIRONMENT VARIABLES
 
@@ -145,6 +146,10 @@ Resource registry to track number of applications currently using the launcher.
 .TP
 .I $XDG_STATE_HOME/xdg/launcher.lock
 A lock file to ensure mutual exclusion for acessing the launcher data registry.
+.TP
+.I /tmp/$USER/passwd.pid
+Any fuzzed \fIpasswd\fR files are placed within the \fI/tmp/$USER\fR directory.
+They are differentiated by the process id, \fIpid\fR, of the launcher which uses it.
 
 .SH AUTHOR
 
