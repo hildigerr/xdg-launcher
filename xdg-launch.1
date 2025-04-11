@@ -1,4 +1,4 @@
-.TH XDG-LAUNCH 1 "April 2025" "1.0" "XDG Launcher"
+.TH XDG-LAUNCH 1 "April 2025" "1.4" "XDG Launcher"
 
 .SH NAME
 xdg-launch \- Enforces XDG Base Directory compliance for applications.
@@ -58,6 +58,12 @@ and \fBXDG_DATA_HOME\fR. If they are not defined, default values are used.
 Missing directories are created as needed.
 
 .TP
+Resource Useage Registratoin:
+The launcher aquires a mutex lock on the file \fI$XDG_STATE_HOME/xdg/launcher.lock\fR.
+The quantity of applications using links within the specified \fBXDG_DATA_HOME\fR is incremented.
+This data is saved within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
+
+.TP
 Temporary Links:
 Temporary links are created within \fBXDG_DATA_HOME\fR for the user's
 cache, config, and Xauthority.
@@ -75,8 +81,9 @@ launches the specified application with its arguments.
 If enabled, this occurs within a new private namespace for fuzzing the \fI/etc/passwd\fR file.
 
 .TP
-Cleanup:
-The temporary links are removed after the application exits.
+Cleanup After the Application Exits:
+The number of registerd applications is decremented within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
+Temporary links are removed unless registered as still in use by another application.
 Fuzzed passwd files are not removed from the \fI/tmp\fR directory, but will be overwritten each time.
 
 .SH ENVIRONMENT VARIABLES
@@ -123,9 +130,15 @@ Default location for cache files.
 .TP
 .I $HOME/.local/share:
 Default location for data files.
+.I $HOME/.local/state:
+Default location for state data files.
 .TP
 .I $HOME/.Xauthority:
 Used for X11 authentication.
+.I $XDG_STATE_HOME/xdg/launcher.data
+Resource registry to track number of applications currently using the launcher.
+.I $XDG_STATE_HOME/xdg/launcher.lock
+A lock file to ensure mutual exclusion for acessing the launcher data registry.
 
 .SH AUTHOR
 

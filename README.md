@@ -24,36 +24,41 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
 1.  **Environment Setup**:
 
-    -   The script checks for user's `XDG_CONFIG_HOME`, `XDG_CACHE_HOME`, and `XDG_DATA_HOME`.
+    -   The script checks for user's `XDG_CONFIG_HOME`, `XDG_CACHE_HOME`, `XDG_DATA_HOME`, and `XDG_STATE_HOME`.
     -   If they are not already defined, the default values are used.
     -   Missing directories are created, if needed, just in case.
 
-2.  **Temporary Links**:
+2.  **Resource Useage Registratoin**:
+
+    -   The launcher aquires a mutex lock on the file `$XDG_STATE_HOME/xdg/launcher.lock`.
+    -   The quantity of applications using links within the specified `XDG_DATA_HOME` is incremented.
+    -   This data is saved within the `$XDG_STATE_HOME/xdg/launcher.data` file.
+
+3.  **Temporary Links**:
     Temporary links to the following items are created within `XDG_DATA_HOME`.
 
     -   `.cache`
     -   `.config`
     -   `.Xauthority`   
 
-3.  **/etc/passwd Fuzzing** (if enabled):
+4.  **/etc/passwd Fuzzing** (if enabled):
 
     -   A copy of the `/etc/passwd` file is created as `/tmp/passwd.fuzz-$USER`
     -   Within the file, the root user's home directory is set to the real user's `XDG_DATA_HOME`.
 
-4.  **Application Launch**:
+5.  **Application Launch**:
 
     -   The working directory will be changed to the specified target directory.
     -   The script redefines the `HOME` environment variable to point to `XDG_DATA_HOME`.
     -   If enabled, a new private namespace is created which overrides `/etc/passwd` with the fuzzed version.
     -   The specified application is launched with its arguments.
 
-5.  **Cleanup**:
+6.  **Cleanup After the Application Exits**:
 
-    -   Temporary links are removed after the application exits.
+    -   The number of registerd applications is decremented within the `$XDG_STATE_HOME/xdg/launcher.data` file.
+    -   Temporary links are removed unless registered as still in use by another application.
     -   Fuzzed passwd files are not removed from the `/tmp` directory, but will be overwritten each time.
 
 ## Notes
 If you have an `$XAUTHORITY` setting, the `.Xauthority` link will not be made. It is hoped that the setting just works without the cludge. I have not yet been successful in enabling this setting. So, if it works for you or not, please let me know.
-
-If you experience any other issues with `.Xauthority` handling, please report them.
 

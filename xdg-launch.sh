@@ -13,6 +13,40 @@
 
 usage() { echo "Usage: $0 [-cd <directory>] [--fuzz] [--quiet] application> [-- options]"; exit; }
 
+increment_lock() {
+  touch "${STATE_FILE}"
+  local update="$(awk -F'::' -v OFS='::' -v path="${XDG_DATA_HOME}" '
+      BEGIN { count = 0 }
+      $2 == path { count = ++$1 }
+      { print }
+      END { if (!count) { print "1::" path } }
+    ' "${STATE_FILE}")" || {
+      echo "Error: Failed to register resource lock" >&2
+      exit 1
+    }
+  echo "$update" > "${STATE_FILE}"
+}
+
+decrement_lock() {
+  local count=$(awk -F'::' -v path="${XDG_DATA_HOME}" '
+    $2 == path { print $1; exit }
+  ' "${STATE_FILE}" ) || count=0
+
+  if [ "$count" -lt 1 ]; then
+    echo "Error: Resource lock corrupted [${count}]" >&2
+    echo "       Unlinking will not occur in case links are still needed." >&2
+    exit 1
+  fi
+
+  sed -i "s|$count::${XDG_DATA_HOME}$|$((count - 1))::${XDG_DATA_HOME}|" "${STATE_FILE}"
+  if [ ! $? ]; then
+    echo "Error: Failed to deregister resource lock [$count]" >&2
+    echo "       Unlinking will not occur in case links are still needed." >&2
+    exit 1
+  fi
+  return $((count - 1))
+}
+
 # Save stdout and stderr for quiet mode
 exec 3>&1 4>&2
 
@@ -60,7 +94,7 @@ if [ ! -d "${XDG_CACHE_HOME}" ]; then
 fi
 
 # Determine Where User Data Files Should Go
-XDG_DATA_HOME=${XDG_DATA_HOME:-${HOME}/.local/share}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-${HOME}/.local/share}
 echo "XDG_DATA_HOME is \"${XDG_DATA_HOME}\""
 
 # Create User Data Home (Should be Unnecessary)
@@ -68,6 +102,24 @@ if [ ! -d "${XDG_DATA_HOME}" ]; then
   echo "Creating \"${XDG_DATA_HOME}\""
   mkdir -p "${XDG_DATA_HOME}"
 fi
+
+# Determine Where User State Date Should Go
+XDG_STATE_HOME=${XDG_STATE_HOME:-${HOME}/.local/state}
+echo "XDG_STATE_HOME is \"${XDG_STATE_HOME}\""
+
+STATE_HOME="$XDG_STATE_HOME/xdg"
+
+# Create User State Home for Launcher
+if [ ! -d "${STATE_HOME}" ]; then
+  echo "Creating \"${STATE_HOME}\""
+  mkdir -p "${STATE_HOME}"
+fi
+
+# Register State as in-use
+LOCK_FILE="${STATE_HOME}/launcher.lock"
+export STATE_FILE="${STATE_HOME}/launcher.data"
+echo "Acquiring resource lock..."
+flock -x "${LOCK_FILE}" -c "$(declare -f increment_lock); increment_lock"
 
 # Link Xauthority file (Only if it Known to be Necessary)
 if [ -n "$XAUTHORITY" ] && [ -f "$XAUTHORITY" ]; then
@@ -77,10 +129,6 @@ if [ -n "$XAUTHORITY" ] && [ -f "$XAUTHORITY" ]; then
 elif [ -f "${HOME}/.Xauthority" ] && [ ! -f "${XDG_DATA_HOME}/.Xauthority" ]; then
   echo "Linking ~/.Xauthority within \"${XDG_DATA_HOME}\""
   ln -T "${HOME}/.Xauthority" "${XDG_DATA_HOME}/.Xauthority"
-else
-  # Unknown handling of XAUTHORITY, lets see if it is needed.
-  echo "XXX: NOT temporarily linking your XAUTHORITY file."
-  echo "     Please, let the maintainer know if you have any issues."
 fi
 
 # Link User's Cache Home
@@ -109,6 +157,13 @@ fi
 RVAL=$?
 
 if [ -n "$QUIET" ]; then exec >/dev/null 2>&1; fi
+
+echo "Releasing resource lock..."
+flock -x "${LOCK_FILE}" -c "$(declare -f decrement_lock); decrement_lock"
+if [ $? -gt 0 ]; then
+  echo "Resources still in use. Not unlinking."
+  exit $RVAL
+fi
 
 # Unlink the Xauthority file (Only if it has more than one link)
 if [ -f "${XDG_DATA_HOME}/.Xauthority" ]; then
