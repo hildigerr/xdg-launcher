@@ -1,4 +1,4 @@
-.TH XDG-LAUNCH 1 "April 2025" "1.4" "XDG Launcher"
+.TH XDG-LAUNCH 1 "April 2025" "1.5" "XDG Launcher"
 
 .SH NAME
 xdg-launch \- Enforces XDG Base Directory compliance for applications.
@@ -36,7 +36,8 @@ This ensures compatibility for applications that target on \fI/etc/passwd\fR for
 .BR \-\-help ", " \-h
 Display usage information and exit.
 
-.TP \-\-quiet ", " \-q
+.TP
+.BR \-\-quiet ", " \-q
 Quiet mode to supress the launcher messages. The launched application's output is not affected.
 
 .TP
@@ -53,15 +54,17 @@ separator.
 
 .TP
 Environment Setup:
-The script checks for user-defined \fBXDG_CONFIG_HOME\fR, \fBXDG_CACHE_HOMEfR,
-and \fBXDG_DATA_HOME\fR. If they are not defined, default values are used.
+The script checks for user-defined \fBXDG_CONFIG_HOME\fR, \fBXDG_CACHE_HOME\fR,
+\fBXDG_DATA_HOME\fR and \fBXDG_STATE_HOME\fR settings.
+If they are not defined, default values are used.
 Missing directories are created as needed.
 
 .TP
 Resource Useage Registratoin:
-The launcher aquires a mutex lock on the file \fI$XDG_STATE_HOME/xdg/launcher.lock\fR.
-The quantity of applications using links within the specified \fBXDG_DATA_HOME\fR is incremented.
-This data is saved within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
+The quantity of applications using links within the specified \fBXDG_DATA_HOME\fR is
+saved within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
+A a mutex lock on the \fI$XDG_STATE_HOME/xdg/launcher.lock\fR file is used to ensure
+only one instance of the launcher updates this data at any time.
 
 .TP
 Temporary Links:
@@ -71,11 +74,11 @@ cache, config, and Xauthority.
 .TP
 /etc/passwd Fuzzing (if enabled):
 A copy of the \fI/etc/passwd\fR file is created as \fI/tmp/passwd.fuzz-$USER\fR.
-Within this file, the root user's home directory is set to the real user's \fIXDG_DATA_HOME\fR.
+Within this file, the root user's home directory is set to the real user's \fBXDG_DATA_HOME\fR.
 
 .TP
 Application Launch:
-The script changes the working directory (if specified), redefines the
+The script changes the working directory (if specified), temporarily redefines the
 \fBHOME\fR environment variable to point to \fBXDG_DATA_HOME\fR, and
 launches the specified application with its arguments.
 If enabled, this occurs within a new private namespace for fuzzing the \fI/etc/passwd\fR file.
@@ -83,7 +86,7 @@ If enabled, this occurs within a new private namespace for fuzzing the \fI/etc/p
 .TP
 Cleanup After the Application Exits:
 The number of registerd applications is decremented within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
-Temporary links are removed unless registered as still in use by another application.
+Temporary links are removed unless they are still in use by another application.
 Fuzzed passwd files are not removed from the \fI/tmp\fR directory, but will be overwritten each time.
 
 .SH ENVIRONMENT VARIABLES
@@ -111,7 +114,7 @@ Specifies the path to the \fI.Xauthority\fR file used by X11 for authentication.
 .PP
 If you have an existing \fBXAUTHORITY\fR setting, the script will \fBnot\fR
 create a temporary link for \fI.Xauthority\fR. It is expected that your setting
-works without modification.
+works without requiring the link.
 Please let the author know if this is, in fact, true or not.
 
 .SH EXIT STATUS
@@ -130,13 +133,16 @@ Default location for cache files.
 .TP
 .I $HOME/.local/share:
 Default location for data files.
+.TP
 .I $HOME/.local/state:
 Default location for state data files.
 .TP
 .I $HOME/.Xauthority:
 Used for X11 authentication.
+.TP
 .I $XDG_STATE_HOME/xdg/launcher.data
 Resource registry to track number of applications currently using the launcher.
+.TP
 .I $XDG_STATE_HOME/xdg/launcher.lock
 A lock file to ensure mutual exclusion for acessing the launcher data registry.
 

@@ -1,5 +1,5 @@
 # xdg-launcher
-Launcher to enfoce XDG Base Directory compliance for any application.
+Launcher to enfoce XDG Base Directory compliance for any application
 
 ## Overview
 
@@ -16,7 +16,7 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 -   `-d`, `--dir`, `--cd <directory>`: Specify a working directory for the application. The script will change to this directory before launching the application.
 -   `-f`, `--fuzz`: Fuzz the `/etc/passwd` file for applications that ignore environment variables.
 -   `--help`, `-h`: Display usage information.
--   `--quiet`, `-q`: Quiet mode to supress launcher messages. The launched application's output is be affected.
+-   `--quiet`, `-q`: Quiet mode to supress launcher messages. The launched application's output is not affected.
 -   `<application>`: The application to be launched.
 -   `[<options>]`: Additional options or arguments passed to the application.
 
@@ -39,7 +39,7 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
     -   `.cache`
     -   `.config`
-    -   `.Xauthority`   
+    -   `.Xauthority`
 
 4.  **/etc/passwd Fuzzing** (if enabled):
 
@@ -48,8 +48,8 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
 5.  **Application Launch**:
 
-    -   The working directory will be changed to the specified target directory.
-    -   The script redefines the `HOME` environment variable to point to `XDG_DATA_HOME`.
+    -   The working directory is changed to the specified target directory.
+    -   The script temporarily redefines the `HOME` environment variable to point to `XDG_DATA_HOME`.
     -   If enabled, a new private namespace is created which overrides `/etc/passwd` with the fuzzed version.
     -   The specified application is launched with its arguments.
 
@@ -60,5 +60,5 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
     -   Fuzzed passwd files are not removed from the `/tmp` directory, but will be overwritten each time.
 
 ## Notes
-If you have an `$XAUTHORITY` setting, the `.Xauthority` link will not be made. It is hoped that the setting just works without the cludge. I have not yet been successful in enabling this setting. So, if it works for you or not, please let me know.
+If you have an `$XAUTHORITY` setting, the `.Xauthority` link will not be made. It is hoped that the setting works without it. I have not yet been successful in enabling this setting. So if you do have it set, please let me know if this works for you or not.
 
