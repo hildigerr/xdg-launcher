@@ -39,11 +39,11 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
     -   `.cache`
     -   `.config`
-    -   `.Xauthority`
+    -   `.Xauthority` (if necessary)
 
 4.  **/etc/passwd Fuzzing** (if enabled):
 
-    -   A copy of the `/etc/passwd` file is created as `/tmp/$USER/passwd.pid`
+    -   A copy of the `/etc/passwd` file is created as `/tmp/$USER/passwd.$pid`
     -   Within the file, the root user's home directory is set to the real user's `XDG_DATA_HOME`.
 
 5.  **Application Launch**:
