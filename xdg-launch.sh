@@ -61,7 +61,7 @@ while [ "$#" -gt 0 ]; do
         exit 1
       fi
       shift;;
-    --fuzz|-f) FUZZ="/tmp/${USER}/passwd.$$";;
+    --fuzz|-f) FUZZ="${XDG_RUNTIME_DIR:-/tmp/$USER}/xdg/passwd.$$";;
     --help|-h) useage;;
     --quiet|-q) QUIET="$1";;
     --) shift; break;;
@@ -107,7 +107,7 @@ fi
 XDG_STATE_HOME=${XDG_STATE_HOME:-${HOME}/.local/state}
 echo "XDG_STATE_HOME is \"${XDG_STATE_HOME}\""
 
-STATE_HOME="$XDG_STATE_HOME/xdg"
+STATE_HOME="${XDG_RUNTIME_DIR:-$XDG_STATE_HOME}/xdg"
 
 # Create User State Home for Launcher
 if [ ! -d "${STATE_HOME}" ]; then
