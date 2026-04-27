@@ -157,6 +157,8 @@ else
 fi
 RVAL=$?
 
+if [ -n "${FUZZ}" ]; then unlink "${FUZZ}"; fi
+
 if [ -n "$QUIET" ]; then exec >/dev/null 2>&1; fi
 
 echo "Releasing resource lock..."

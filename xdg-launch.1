@@ -62,8 +62,8 @@ Missing directories are created as needed.
 .TP
 Resource Useage Registratoin:
 The quantity of applications using links within the specified \fBXDG_DATA_HOME\fR is
-saved within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
-A a mutex lock on the \fI$XDG_STATE_HOME/xdg/launcher.lock\fR file is used to ensure
+saved within the \fI$XDG_RUNTIME_DIR/xdg/launcher.data\fR file.
+A a mutex lock on the \fI$XDG_RUNTIME_DIR/xdg/launcher.lock\fR file is used to ensure
 only one instance of the launcher updates this data at any time.
 
 .TP
@@ -73,7 +73,7 @@ cache, config, and Xauthority (if necessary).
 
 .TP
 /etc/passwd Fuzzing (if enabled):
-A copy of the \fI/etc/passwd\fR file is created as \fI/tmp/$USER/passwd.pid\fR,
+A copy of the \fI/etc/passwd\fR file is created as \fI$XDG_RUNTIME_DIR/xdg/passwd.pid\fR,
 where \fBpid\fR is the process id of the launcher.
 Within this file, the root user's home directory is set to the real user's \fBXDG_DATA_HOME\fR.
 
@@ -86,9 +86,9 @@ If enabled, this occurs within a new private namespace for fuzzing the \fI/etc/p
 
 .TP
 Cleanup After the Application Exits:
-The number of registerd applications is decremented within the \fI$XDG_STATE_HOME/xdg/launcher.data\fR file.
+The number of registerd applications is decremented within the \fI$XDG_RUNTIME_DIR/xdg/launcher.data\fR file.
 Temporary links are removed unless they are still in use by another application.
-Fuzzed passwd files are not removed from the \fI/tmp/$USER/\fR directory.
+Fuzzed passwd files are removed from the \fI$XDG_RUNTIME_DIR/xdg\fR directory.
 
 .SH ENVIRONMENT VARIABLES
 
@@ -141,14 +141,14 @@ Default location for state data files.
 .I $HOME/.Xauthority:
 Used for X11 authentication.
 .TP
-.I $XDG_STATE_HOME/xdg/launcher.data
+.I $XDG_RUNTIME_DIR/xdg/launcher.data
 Resource registry to track number of applications currently using the launcher.
 .TP
-.I $XDG_STATE_HOME/xdg/launcher.lock
+.I $XDG_RUNTIME_DIR/xdg/launcher.lock
 A lock file to ensure mutual exclusion for acessing the launcher data registry.
 .TP
-.I /tmp/$USER/passwd.pid
-Any fuzzed \fIpasswd\fR files are placed within the \fI/tmp/$USER\fR directory.
+.I $XDG_RUNTIME_DIR/xdg/passwd.pid
+Any fuzzed \fIpasswd\fR files are placed within the \fI$XDG_RUNTIME_DIR/xdg\fR directory.
 They are differentiated by the process id, \fIpid\fR, of the launcher which uses it.
 
 .SH AUTHOR

@@ -30,9 +30,9 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
 2.  **Resource Useage Registratoin**:
 
-    -   The launcher aquires a mutex lock on the file `$XDG_STATE_HOME/xdg/launcher.lock`.
+    -   The launcher aquires a mutex lock on the file `$XDG_RUNTIME_DIR/xdg/launcher.lock`.
     -   The quantity of applications using links within the specified `XDG_DATA_HOME` is incremented.
-    -   This data is saved within the `$XDG_STATE_HOME/xdg/launcher.data` file.
+    -   This data is saved within the `$XDG_RUNTIME_DIR/xdg/launcher.data` file.
 
 3.  **Temporary Links**:
     Temporary links to the following items are created within `XDG_DATA_HOME`.
@@ -43,7 +43,7 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
 4.  **/etc/passwd Fuzzing** (if enabled):
 
-    -   A copy of the `/etc/passwd` file is created as `/tmp/$USER/passwd.$pid`
+    -   A copy of the `/etc/passwd` file is created as `$XDG_RUNTIME_DIR/xdg/passwd.$pid`
     -   Within the file, the root user's home directory is set to the real user's `XDG_DATA_HOME`.
 
 5.  **Application Launch**:
@@ -55,9 +55,9 @@ xdg-launch [-cd <directory>] [--fuzz] [--quiet] <application> [-- <options>]
 
 6.  **Cleanup After the Application Exits**:
 
-    -   The number of registerd applications is decremented within the `$XDG_STATE_HOME/xdg/launcher.data` file.
+    -   The number of registerd applications is decremented within the `$XDG_RUNTIME_DIR/xdg/launcher.data` file.
     -   Temporary links are removed unless registered as still in use by another application.
-    -   Fuzzed passwd files are not removed from the `/tmp/$USER/` directory.
+    -   Fuzzed passwd files are removed from the `$XDG_RUNTIME_DIR/xdg/` directory.
 
 ## Notes
 If you have an `$XAUTHORITY` setting, the `.Xauthority` link will not be made. It is hoped that the setting works without it. I have not yet been successful in enabling this setting. So if you do have it set, please let me know if this works for you or not.
