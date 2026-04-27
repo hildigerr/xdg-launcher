@@ -128,7 +128,7 @@ if [ -n "$XAUTHORITY" ] && [ -f "$XAUTHORITY" ]; then
   echo "     Please, let the maintainer know if this works."
 elif [ -f "${HOME}/.Xauthority" ] && [ ! -f "${XDG_DATA_HOME}/.Xauthority" ]; then
   echo "Linking ~/.Xauthority within \"${XDG_DATA_HOME}\""
-  ln -T "${HOME}/.Xauthority" "${XDG_DATA_HOME}/.Xauthority"
+  ln --symbolic -T "${HOME}/.Xauthority" "${XDG_DATA_HOME}/.Xauthority"
 fi
 
 # Link User's Cache Home
@@ -168,13 +168,10 @@ if [ $? -gt 0 ]; then
   exit $RVAL
 fi
 
-# Unlink the Xauthority file (Only if it has more than one link)
-if [ -f "${XDG_DATA_HOME}/.Xauthority" ]; then
-  links=$(stat -c "%h" "${XDG_DATA_HOME}/.Xauthority")
-  if [ "$links" -gt 1 ]; then
+# Unlink the Xauthority file (Only if it is symbolic)
+if [ -L "${XDG_DATA_HOME}/.Xauthority" ]; then
   echo "Unlinking temporary Xauthority file"
-    unlink "${XDG_DATA_HOME}/.Xauthority"
-  fi
+  unlink "${XDG_DATA_HOME}/.Xauthority"
 fi
 
 # Unlink User's Cache Home
